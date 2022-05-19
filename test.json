@@ -1,0 +1,16 @@
+{
+  "projects": [
+    {
+      "name": "A",
+      "hours": "0",
+      "mins": "0",
+      "secs": "0"
+    },
+    {
+      "name": "B",
+      "hours": "1",
+      "mins": "1",
+      "secs": "1"
+    }
+  ]
+}
