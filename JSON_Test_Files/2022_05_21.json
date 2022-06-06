@@ -1,0 +1,20 @@
+{
+  "date": "2022_05_21",
+  "projects": {
+    "h": {
+      "hours": 3,
+      "minutes": 20,
+      "seconds": 15
+    },
+    "a": {
+      "hours": 0,
+      "minutes": 30,
+      "seconds": 23
+    },
+    "n": {
+      "hours": 2,
+      "minutes": 50,
+      "seconds": 43
+    }
+  }
+}
