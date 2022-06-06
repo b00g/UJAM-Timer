@@ -203,9 +203,36 @@ def sumJsonFiles():
 
 	writeSumJsonFile(output, time_frame)
 	moveJsonFilesToNewFolder(time_frame)
-	# writeTextFile(output, time_frame)
+	writeTextFile(output, time_frame)
 
-		
+
+def writeTextFile(data, time_frame):
+	name = time_frame + ".txt"
+
+	while True:
+		if os.path.exists(name):
+			temp = len(name)-4
+			name = name[:temp] + "_" + name[temp:]
+			print("File already existed. Changed filename to: " + name)
+		else:
+			print("Writing textfile: " + name)
+			break
+
+	f = open(name, "x")
+	f.write("Timeframe: " + time_frame + "\n\n")
+
+	for project in data["projects"]:
+		project_name = project
+		hours = data["projects"][project]["hours"]
+		minutes = data["projects"][project]["minutes"]
+		seconds = data["projects"][project]["seconds"]
+		# print(str(project))
+
+		f.write("   " + str(project) + ": " + str(hours) + "h " + str(minutes) + "m " + str(seconds) + "s" + "\n")
+
+	f.close()
+
+
 def writeSumJsonFile(output, time_frame):
 	global suffix
 	name = "SUM_" + time_frame + suffix
@@ -302,7 +329,7 @@ class Timer:
 		
 
 	def makeGUI(self, row, name, times):
-		print("makeGUI().row = ", row)
+		# print("makeGUI().row = ", row)
 		self.y = 40 * row + offset_from_top
 		self.row = row
 		self.timer_name = name
