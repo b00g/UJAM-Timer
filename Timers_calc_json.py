@@ -3,6 +3,7 @@ from datetime import datetime
 import os
 import numpy as np
 import json
+import shutil
 
 global HEIGHT, WIDTH, suffix
 
@@ -124,6 +125,7 @@ def sumJsonFiles():
 	output = dict()
 	output["projects"] = dict()
 	dates = []
+	file_path = ""
 
 	for file in os.listdir(location):
 	    try:
@@ -195,9 +197,35 @@ def sumJsonFiles():
 	print("dates of all files:\n", dates)
 	time_frame = dates[0] + "-" + dates[len(dates)-1]
 	output["timeFrame"] = time_frame
+	
 	writeSumJsonFile(output, time_frame)
+	moveJsonFilesToNewFolder(time_frame)
 
 
+def moveJsonFilesToNewFolder(time_frame):
+	print("")
+	print("	>> moving files to new folder:")
+	global suffix
+	location = os.getcwd()
+	newFolderPath = os.path.join(location, time_frame)
+
+	while True:
+		if os.path.exists(newFolderPath):
+			newFolderPath += "_"
+			print(f'		{newFolderPath} existed, changed to: {newFolderPath}')
+		else:
+			os.makedirs(newFolderPath)
+			break
+
+	for file in os.listdir(location):
+		if file.endswith(".json"):
+			newFilePath = os.path.join(newFolderPath, file)
+			original_file_path = os.path.join(location, file)
+			print(f'		new File Path: {newFilePath}')
+
+			shutil.move(original_file_path, newFilePath)
+
+		
 def writeSumJsonFile(output, time_frame):
 	global suffix
 	name = "SUM_" + time_frame + suffix
@@ -212,6 +240,8 @@ def writeSumJsonFile(output, time_frame):
 			with open(name, "w") as file:
 				json.dump(output, file, indent=4)
 			break
+
+
 
 
 root = tk.Tk()
