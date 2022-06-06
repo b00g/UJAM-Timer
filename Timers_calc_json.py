@@ -118,31 +118,34 @@ def saveData():
 		# 	print(project)
 
 
-def sumJsonFiles():
-	location = os.getcwd()
+def getFilesOfType(location, file_type):
+	files = []
 	counter = 0
-	jsonfiles = []
-	output = dict()
-	output["projects"] = dict()
-	dates = []
-	file_path = ""
-
 	for file in os.listdir(location):
 	    try:
-	        if file.endswith(".json"):
-	            # print("json file found:\t", file)
-	            jsonfiles.append(str(file))
-	            counter = counter+1
+	        if file.endswith(file_type):
+	            files.append(str(file))
+	            counter += 1
 	    except Exception as e:
 	        raise e
 	        print("No files found here!")
-	print("Total files found:\t", counter)
+	print("Total files of type " + file_type +  " found: ", counter)
+	return files
+
+
+def sumJsonFiles():
+	location = os.getcwd()
+	output = dict()
+	output["projects"] = dict()
+	dates = []
+
+	jsonfiles = getFilesOfType(location, ".json")
 
 	for f in jsonfiles:
 		# print("f:3 ", f[:3])
 
 		if f[:3] != "SUM":
-			print("+++++++++++++++++++++++++++++++++\n", ">> NEW FILE, filename: ", f)
+			print("\n+++++++++++++++++++++++++++++++++\n", ">> NEW FILE, filename: ", f)
 			with open(f) as file:
 				data = json.load(file)
 				print("	current file content: ", type(data), json.dumps(data, indent= 4))
@@ -164,17 +167,17 @@ def sumJsonFiles():
 					print("	Times: ",h,"h",m,"m",s,"s")
 
 					if project in output["projects"]:
-						print("	>> project already exists, adding time")
+						print("	>> ...project already exists, adding time")
 						output["projects"][project]["hours"] += h
 						output["projects"][project]["minutes"] += m
 						output["projects"][project]["seconds"] += s
 
 						if output["projects"][project]["seconds"] > 59:
-							print("	seconds / mins was: ", output["projects"][project]["seconds"], "/", output["projects"][project]["minutes"])
+							# print("	seconds / mins was: ", output["projects"][project]["seconds"], "/", output["projects"][project]["minutes"])
 							remainder = output["projects"][project]["seconds"] % 60
 							output["projects"][project]["minutes"] += (output["projects"][project]["seconds"] - remainder) / 60
 							output["projects"][project]["seconds"] = remainder
-							print("	seconds / mins is: ", output["projects"][project]["seconds"], "/", output["projects"][project]["minutes"])
+							# print("	seconds / mins is: ", output["projects"][project]["seconds"], "/", output["projects"][project]["minutes"])
 
 						if output["projects"][project]["minutes"] > 59:
 							# print("mins is: ", output["projects"][project]["seconds"], "/", output["projects"][project]["minutes"])
@@ -182,24 +185,43 @@ def sumJsonFiles():
 							output["projects"][project]["hours"] += (output["projects"][project]["seconds"] - remainder) / 60
 							output["projects"][project]["minutes"] = remainder
 					else:
-						print(">> new project, appending...")
+						print(">> ...was new project, appending...")
 						output["projects"][project] = dict()
 						output["projects"][project]["hours"] = h
 						output["projects"][project]["minutes"] = m
 						output["projects"][project]["seconds"] = s
 					print("\n")
 		else:
-			print(">>>>>>>>>	SUM file found, skipping...")
+			print(">>>>>>>>>	SUM file, skipping...")
 
 	print("++++  ALL FILES PROCESSED  ++++\n","Output after formatting:", json.dumps(output, indent= 4))
 	# print(dates)
 	dates.sort()
-	print("dates of all files:\n", dates)
+	print("\ndates of all files:\n", dates)
 	time_frame = dates[0] + "-" + dates[len(dates)-1]
 	output["timeFrame"] = time_frame
-	
+
 	writeSumJsonFile(output, time_frame)
 	moveJsonFilesToNewFolder(time_frame)
+	# writeTextFile(output, time_frame)
+
+		
+def writeSumJsonFile(output, time_frame):
+	global suffix
+	name = "SUM_" + time_frame + suffix
+	print("\nWriting file....")
+
+	while True:
+		if os.path.exists(name):
+			temp = len(name)-len(suffix)
+			name = name[:temp] + "_" + name[temp:]
+			print("	>>File already existed. Changed filename to: " + name)
+		else:
+			print("...writing '" + name + "'")
+			with open(name, "w") as file:
+				json.dump(output, file, indent=4)
+			break
+
 
 
 def moveJsonFilesToNewFolder(time_frame):
@@ -224,23 +246,6 @@ def moveJsonFilesToNewFolder(time_frame):
 			print(f'		new File Path: {newFilePath}')
 
 			shutil.move(original_file_path, newFilePath)
-
-		
-def writeSumJsonFile(output, time_frame):
-	global suffix
-	name = "SUM_" + time_frame + suffix
-
-	while True:
-		if os.path.exists(name):
-			temp = len(name)-len(suffix)
-			name = name[:temp] + "_" + name[temp:]
-			print("File already existed. Changed filename to: " + name)
-		else:
-			print("Writing file: " + name)
-			with open(name, "w") as file:
-				json.dump(output, file, indent=4)
-			break
-
 
 
 
